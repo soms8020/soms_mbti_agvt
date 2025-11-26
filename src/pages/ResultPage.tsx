@@ -20,6 +20,7 @@ const ResultPage = () => {
     };
 
     const shareUrl = window.location.href;
+    const homeUrl = window.location.origin;
 
     const handleRetest = () => {
         reset();
@@ -257,11 +258,11 @@ const ResultPage = () => {
                 transition={{ duration: 0.5 }}
                 className="w-full max-w-2xl flex flex-col gap-6 px-4"
             >
-                <div ref={resultRef} className="bg-gray-800 p-8 md:p-12 rounded-2xl shadow-2xl text-center border border-gray-700 relative overflow-visible">
+                <div ref={resultRef} className="bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl text-center border border-gray-700 relative overflow-visible">
                     <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-t-2xl" />
-                    <div className="mt-6 mb-8">
-                        <h3 className="text-2xl text-white mb-6 font-bold">나의 성향은?</h3>
-                        <div className="mb-8">
+                    <div className="mt-4 mb-6">
+                        <h3 className="text-lg text-white mb-4 font-semibold">나의 성향은?</h3>
+                        <div className="mb-6">
                             <h1 
                                 className="text-8xl md:text-9xl font-black text-white mb-4 tracking-tighter" 
                                 style={{
@@ -274,28 +275,28 @@ const ResultPage = () => {
                             >
                                 {mbti}
                             </h1>
-                            <div className="w-3/4 mx-auto h-1.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full"></div>
+                            <div className="w-3/4 mx-auto h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full"></div>
                         </div>
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">{result.title}</h2>
-                    <p className="text-gray-200 mb-10 leading-relaxed text-lg md:text-xl px-4">{result.description}</p>
-                    <div className="flex flex-wrap justify-center gap-3 mb-10">
+                    <h2 className="text-xl md:text-2xl font-bold mb-4 text-white">{result.title}</h2>
+                    <p className="text-gray-200 mb-6 leading-relaxed text-base md:text-lg px-4">{result.description}</p>
+                    <div className="flex flex-wrap justify-center gap-2 mb-6">
                         {result.tags.map(tag => (
-                            <span key={tag} className="bg-gray-700 text-blue-300 px-5 py-2.5 rounded-full text-base font-semibold border border-blue-500/30">
+                            <span key={tag} className="bg-gray-700 text-blue-300 px-3 py-1.5 rounded-full text-sm font-medium border border-blue-500/30">
                                 #{tag}
                             </span>
                         ))}
                     </div>
-                    <div className="mt-8 pt-8 border-t-2 border-gray-600">
-                        <p className="text-2xl font-bold text-white mb-4">너도 해볼래?</p>
+                    <div className="mt-6 pt-6 border-t border-gray-600">
+                        <p className="text-lg font-bold text-white mb-3">너도 해볼래?</p>
                         <a 
-                            href={shareUrl} 
+                            href={homeUrl} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-lg text-blue-400 hover:text-blue-300 break-all font-semibold px-4 py-2 underline decoration-2 decoration-blue-400 hover:decoration-blue-300 transition-colors inline-block"
+                            className="text-sm md:text-base text-blue-400 hover:text-blue-300 break-all font-medium px-2 underline decoration-blue-400 hover:decoration-blue-300 transition-colors inline-block"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            {shareUrl}
+                            {homeUrl}
                         </a>
                     </div>
                 </div>
