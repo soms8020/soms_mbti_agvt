@@ -20,21 +20,13 @@ const ResultPage = () => {
     };
 
     const shareUrl = window.location.href;
-    const homeUrl = window.location.origin;
+    const homeUrl = 'https://soms-mbit-agvt.vercel.app';
 
     const handleRetest = () => {
         reset();
         navigate('/');
     };
 
-    const handleCopyLink = async () => {
-        try {
-            await navigator.clipboard.writeText(shareUrl);
-            alert('링크가 복사되었습니다!');
-        } catch (err) {
-            console.error('Failed to copy link', err);
-        }
-    };
 
     const handleDownload = async () => {
         if (resultRef.current) {
@@ -207,42 +199,6 @@ const ResultPage = () => {
         }
     };
 
-    const handleInstagramShare = async () => {
-        // 인스타그램은 직접 공유가 불가능하므로 이미지를 다운로드
-        if (resultRef.current) {
-            try {
-                const canvas = await html2canvas(resultRef.current, {
-                    backgroundColor: '#1f2937',
-                    scale: 3,
-                    useCORS: true,
-                    logging: false,
-                    allowTaint: false,
-                    removeContainer: false,
-                });
-                const image = canvas.toDataURL('image/png', 1.0);
-                const link = document.createElement('a');
-                link.href = image;
-                link.download = `mbti_result_${mbti}.png`;
-                link.click();
-                
-                // 모바일에서 인스타그램 앱 열기 시도
-                if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                    setTimeout(() => {
-                        window.location.href = 'instagram://camera';
-                    }, 500);
-                } else if (/Android/i.test(navigator.userAgent)) {
-                    setTimeout(() => {
-                        window.location.href = 'intent://instagram.com/#Intent;package=com.instagram.android;scheme=https;end';
-                    }, 500);
-                } else {
-                    alert('이미지가 저장되었습니다. 인스타그램에 업로드해주세요!');
-                }
-            } catch (err) {
-                console.error('Instagram share failed', err);
-                alert('이미지 저장에 실패했습니다.');
-            }
-        }
-    };
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-4">
@@ -301,39 +257,22 @@ const ResultPage = () => {
                     </div>
                 </div>
                 {/* Action Buttons */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="flex gap-3">
                     <button
                         onClick={handleDownload}
-                        className="flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-lg"
+                        className="flex-1 flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-lg"
                     >
                         <Download size={20} />
                         이미지 저장
                     </button>
                     <button
-                        onClick={handleCopyLink}
-                        className="flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-lg"
-                    >
-                        복사하기
-                    </button>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                    <button
                         onClick={handleKakaoShare}
-                        className="flex items-center justify-center gap-2 bg-[#FEE500] hover:bg-[#FDD835] text-[#3C1E1E] font-bold py-3 px-4 rounded-xl transition-colors shadow-lg"
+                        className="flex-1 flex items-center justify-center gap-2 bg-[#FEE500] hover:bg-[#FDD835] text-[#3C1E1E] font-bold py-3 px-4 rounded-xl transition-colors shadow-lg"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
                             <path d="M12 3c5.799 0 10.5 3.664 10.5 8.185 0 4.52-4.701 8.184-10.5 8.184a13.5 13.5 0 0 1-1.78-.123 4.75 4.75 0 0 1-3.847 2.123l-3.423.607a.5.5 0 0 1-.448-.723l1.12-2.24A9.25 9.25 0 0 1 1.5 11.185C1.5 6.665 6.201 3 12 3Z"/>
                         </svg>
                         카카오톡
-                    </button>
-                    <button
-                        onClick={handleInstagramShare}
-                        className="flex items-center justify-center gap-2 bg-[#C13584] hover:bg-[#a02e6c] text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-lg"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="w-5 h-5" fill="currentColor">
-                            <path d="M224.1 141c-63.6 0-115 51.4-115 115 0 63.6 51.4 115 115 115 63.6 0 115-51.4 115-115 0-63.6-51.4-115-115-115zm0 190c-41.4 0-75-33.6-75-75s33.6-75 75-75 75 33.6 75 75-33.6 75-75 75zm146.4-194.1c0 14.9-12 26.9-26.9 26.9h-26.9c-14.9 0-26.9-12-26.9-26.9v-26.9c0-14.9 12-26.9 26.9-26.9h26.9c14.9 0 26.9 12 26.9 26.9v26.9zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/>
-                        </svg>
-                        인스타그램
                     </button>
                 </div>
                 <button
