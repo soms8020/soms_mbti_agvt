@@ -247,18 +247,22 @@ const ResultPage = () => {
             >
                 <div ref={resultRef} className="bg-gray-800 p-8 rounded-2xl shadow-2xl text-center border border-gray-700 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-500" />
-                    <h3 className="text-xl text-gray-400 mb-2 mt-4">나의 성향은?</h3>
+                    <h3 className="text-xl text-white mb-2 mt-4 font-semibold">나의 성향은?</h3>
                     <h1 className="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-6 tracking-tighter">
                         {mbti}
                     </h1>
                     <h2 className="text-2xl font-bold mb-4 text-white">{result.title}</h2>
                     <p className="text-gray-300 mb-8 leading-relaxed">{result.description}</p>
-                    <div className="flex flex-wrap justify-center gap-2">
+                    <div className="flex flex-wrap justify-center gap-2 mb-6">
                         {result.tags.map(tag => (
                             <span key={tag} className="bg-gray-700 text-blue-300 px-3 py-1 rounded-full text-sm font-medium">
                                 {tag}
                             </span>
                         ))}
+                    </div>
+                    <div className="mt-4 pt-6 border-t border-gray-700">
+                        <p className="text-lg font-bold text-white mb-2">너도 해볼래?</p>
+                        <p className="text-sm text-blue-400 break-all">{shareUrl}</p>
                     </div>
                 </div>
                 {/* Action Buttons */}
