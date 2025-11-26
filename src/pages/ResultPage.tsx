@@ -93,9 +93,6 @@ const ResultPage = () => {
             // Web Share API가 지원되지 않거나 실패한 경우, 카카오톡 앱 직접 호출
             if (/Android/i.test(navigator.userAgent)) {
                 // Android: 카카오톡 앱으로 이미지와 텍스트 공유
-                // 먼저 이미지를 임시로 저장하고 카카오톡 앱 열기
-                const imageBlobUrl = URL.createObjectURL(blob);
-                
                 // 클립보드에 텍스트 복사
                 try {
                     await navigator.clipboard.writeText(shareText);
@@ -103,12 +100,40 @@ const ResultPage = () => {
                     console.error('Clipboard write failed:', e);
                 }
                 
-                // 카카오톡 앱 열기 (이미지 공유는 앱 내에서 처리)
-                window.location.href = `intent://send?text=${encodeURIComponent(shareText)}#Intent;scheme=kakaotalk;package=com.kakao.talk;end`;
+                // 이미지 다운로드
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = `mbti_result_${mbti}.png`;
+                link.click();
                 
-                // 폴백: 카카오톡 스토리 공유
+                // 카카오톡 앱 열기 시도
+                let appOpened = false;
+                const startTime = Date.now();
+                
+                // 페이지 포커스 이벤트로 앱이 열렸는지 확인
+                const checkAppOpened = () => {
+                    const elapsed = Date.now() - startTime;
+                    if (elapsed < 2000) {
+                        appOpened = true;
+                    }
+                };
+                
+                window.addEventListener('blur', checkAppOpened);
+                
+                // 카카오톡 앱 열기
+                try {
+                    window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
+                } catch (e) {
+                    console.error('Failed to open KakaoTalk app:', e);
+                }
+                
+                // 앱이 열리지 않으면 웹으로 폴백
                 setTimeout(() => {
-                    window.open(`https://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
+                    window.removeEventListener('blur', checkAppOpened);
+                    if (!appOpened) {
+                        // 카카오톡 웹 공유로 폴백
+                        window.open(`https://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
+                    }
                 }, 1000);
             } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
                 // iOS: 카카오톡 앱으로 공유
@@ -119,19 +144,20 @@ const ResultPage = () => {
                     console.error('Clipboard write failed:', e);
                 }
                 
-                // 이미지 다운로드 후 카카오톡 앱 열기
+                // 이미지 다운로드
                 const link = document.createElement('a');
                 link.href = dataUrl;
                 link.download = `mbti_result_${mbti}.png`;
                 link.click();
                 
                 // 카카오톡 앱 열기
-                window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
+                const kakaoAppUrl = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
+                window.location.href = kakaoAppUrl;
                 
-                // 폴백: 카카오톡 스토리 공유
+                // 앱이 열리지 않으면 웹으로 폴백
                 setTimeout(() => {
                     window.open(`https://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
-                }, 1000);
+                }, 500);
             } else {
                 // 데스크톱: 이미지 다운로드 후 카카오톡 웹 공유
                 const link = document.createElement('a');
@@ -152,9 +178,20 @@ const ResultPage = () => {
             // 최종 폴백: 텍스트만 공유
             const fallbackText = `${mbti} - ${result.title}\n${shareUrl}`;
             if (/Android/i.test(navigator.userAgent)) {
-                window.location.href = `intent://send?text=${encodeURIComponent(fallbackText)}#Intent;scheme=kakaotalk;package=com.kakao.talk;end`;
+                // Android: kakaotalk:// 스킴 직접 사용
+                try {
+                    window.location.href = `kakaotalk://send?text=${encodeURIComponent(fallbackText)}`;
+                    setTimeout(() => {
+                        window.open(`https://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(fallbackText)}`, '_blank');
+                    }, 1000);
+                } catch (e) {
+                    window.open(`https://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(fallbackText)}`, '_blank');
+                }
             } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
                 window.location.href = `kakaotalk://send?text=${encodeURIComponent(fallbackText)}`;
+                setTimeout(() => {
+                    window.open(`https://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(fallbackText)}`, '_blank');
+                }, 500);
             } else {
                 window.open(`https://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(fallbackText)}`, '_blank');
             }
