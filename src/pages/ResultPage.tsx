@@ -40,9 +40,13 @@ const ResultPage = () => {
             try {
                 const canvas = await html2canvas(resultRef.current, {
                     backgroundColor: '#1f2937',
-                    scale: 2,
+                    scale: 4, // 고해상도
+                    width: resultRef.current.offsetWidth,
+                    height: resultRef.current.offsetHeight,
+                    useCORS: true,
+                    logging: false,
                 });
-                const image = canvas.toDataURL('image/png');
+                const image = canvas.toDataURL('image/png', 1.0);
                 const link = document.createElement('a');
                 link.href = image;
                 link.download = `mbti_result_${mbti}.png`;
@@ -60,12 +64,18 @@ const ResultPage = () => {
         const shareText = `${mbti} - ${result.title}\n\n${result.description}\n\n나의 성향 테스트 결과를 확인해보세요!\n테스트 하기: ${shareUrl}`;
         
         try {
-            // 결과 이미지 생성
+            // 결과 이미지 생성 (고해상도)
             const canvas = await html2canvas(resultRef.current, {
                 backgroundColor: '#1f2937',
-                scale: 2,
+                scale: 4, // 해상도 4배 증가
+                width: resultRef.current.offsetWidth,
+                height: resultRef.current.offsetHeight,
+                useCORS: true,
+                logging: false,
+                windowWidth: resultRef.current.scrollWidth,
+                windowHeight: resultRef.current.scrollHeight,
             });
-            const dataUrl = canvas.toDataURL('image/png');
+            const dataUrl = canvas.toDataURL('image/png', 1.0); // 최고 품질
             
             // Data URL을 Blob으로 변환
             const response = await fetch(dataUrl);
@@ -204,9 +214,13 @@ const ResultPage = () => {
             try {
                 const canvas = await html2canvas(resultRef.current, {
                     backgroundColor: '#1f2937',
-                    scale: 2,
+                    scale: 4, // 고해상도
+                    width: resultRef.current.offsetWidth,
+                    height: resultRef.current.offsetHeight,
+                    useCORS: true,
+                    logging: false,
                 });
-                const image = canvas.toDataURL('image/png');
+                const image = canvas.toDataURL('image/png', 1.0);
                 const link = document.createElement('a');
                 link.href = image;
                 link.download = `mbti_result_${mbti}.png`;
@@ -243,9 +257,9 @@ const ResultPage = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
-                className="w-full max-w-md flex flex-col gap-6"
+                className="w-full max-w-lg flex flex-col gap-6"
             >
-                <div ref={resultRef} className="bg-gray-800 p-8 rounded-2xl shadow-2xl text-center border border-gray-700 relative overflow-hidden">
+                <div ref={resultRef} className="bg-gray-800 p-10 rounded-2xl shadow-2xl text-center border border-gray-700 relative overflow-hidden min-w-[400px]">
                     <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-500" />
                     <h3 className="text-xl text-white mb-2 mt-4 font-semibold">나의 성향은?</h3>
                     <h1 className="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-6 tracking-tighter">
@@ -261,8 +275,8 @@ const ResultPage = () => {
                         ))}
                     </div>
                     <div className="mt-4 pt-6 border-t border-gray-700">
-                        <p className="text-lg font-bold text-white mb-2">너도 해볼래?</p>
-                        <p className="text-sm text-blue-400 break-all">{shareUrl}</p>
+                        <p className="text-lg font-bold text-white mb-3">너도 해볼래?</p>
+                        <p className="text-base text-blue-300 break-all font-medium px-2">{shareUrl}</p>
                     </div>
                 </div>
                 {/* Action Buttons */}
