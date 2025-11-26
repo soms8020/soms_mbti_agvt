@@ -54,28 +54,110 @@ const ResultPage = () => {
         }
     };
 
-    const handleKakaoShare = () => {
-        const shareText = `${mbti} - ${result.title}\n${result.description}\n\n나의 성향 테스트 결과를 확인해보세요!`;
+    const handleKakaoShare = async () => {
+        if (!resultRef.current) return;
+
+        const shareText = `${mbti} - ${result.title}\n\n${result.description}\n\n나의 성향 테스트 결과를 확인해보세요!\n테스트 하기: ${shareUrl}`;
         
-        // 카카오톡 링크 공유 (모바일/데스크톱 모두 지원)
-        const kakaoUrl = `https://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
-        
-        // 모바일에서 카카오톡 앱 열기 시도
-        if (/Android/i.test(navigator.userAgent)) {
-            // Android: 카카오톡 앱 또는 웹
-            window.location.href = `intent://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}#Intent;scheme=https;package=com.kakao.talk;end`;
-            setTimeout(() => {
-                window.open(kakaoUrl, '_blank');
-            }, 500);
-        } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-            // iOS: 카카오톡 앱 또는 웹
-            window.location.href = `kakaotalk://story/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
-            setTimeout(() => {
-                window.open(kakaoUrl, '_blank');
-            }, 500);
-        } else {
-            // 데스크톱: 카카오톡 웹
-            window.open(kakaoUrl, '_blank');
+        try {
+            // 결과 이미지 생성
+            const canvas = await html2canvas(resultRef.current, {
+                backgroundColor: '#1f2937',
+                scale: 2,
+            });
+            const dataUrl = canvas.toDataURL('image/png');
+            
+            // Data URL을 Blob으로 변환
+            const response = await fetch(dataUrl);
+            const blob = await response.blob();
+            const file = new File([blob], `mbti_result_${mbti}.png`, { type: 'image/png' });
+
+            // Web Share API 사용 (이미지와 텍스트 함께 공유)
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        text: shareText,
+                        title: `${mbti} - ${result.title}`,
+                    });
+                    return;
+                } catch (shareError: any) {
+                    // 사용자가 공유를 취소한 경우
+                    if (shareError.name === 'AbortError') {
+                        return;
+                    }
+                    console.log('Web Share API failed, trying fallback:', shareError);
+                }
+            }
+
+            // Web Share API가 지원되지 않거나 실패한 경우, 카카오톡 앱 직접 호출
+            if (/Android/i.test(navigator.userAgent)) {
+                // Android: 카카오톡 앱으로 이미지와 텍스트 공유
+                // 먼저 이미지를 임시로 저장하고 카카오톡 앱 열기
+                const imageBlobUrl = URL.createObjectURL(blob);
+                
+                // 클립보드에 텍스트 복사
+                try {
+                    await navigator.clipboard.writeText(shareText);
+                } catch (e) {
+                    console.error('Clipboard write failed:', e);
+                }
+                
+                // 카카오톡 앱 열기 (이미지 공유는 앱 내에서 처리)
+                window.location.href = `intent://send?text=${encodeURIComponent(shareText)}#Intent;scheme=kakaotalk;package=com.kakao.talk;end`;
+                
+                // 폴백: 카카오톡 스토리 공유
+                setTimeout(() => {
+                    window.open(`https://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
+                }, 1000);
+            } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                // iOS: 카카오톡 앱으로 공유
+                // 클립보드에 텍스트 복사
+                try {
+                    await navigator.clipboard.writeText(shareText);
+                } catch (e) {
+                    console.error('Clipboard write failed:', e);
+                }
+                
+                // 이미지 다운로드 후 카카오톡 앱 열기
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = `mbti_result_${mbti}.png`;
+                link.click();
+                
+                // 카카오톡 앱 열기
+                window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
+                
+                // 폴백: 카카오톡 스토리 공유
+                setTimeout(() => {
+                    window.open(`https://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
+                }, 1000);
+            } else {
+                // 데스크톱: 이미지 다운로드 후 카카오톡 웹 공유
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = `mbti_result_${mbti}.png`;
+                link.click();
+                
+                // 클립보드에 텍스트 복사
+                try {
+                    await navigator.clipboard.writeText(shareText);
+                    alert('이미지가 저장되고 링크가 복사되었습니다. 카카오톡에서 이미지와 링크를 붙여넣어 공유하세요!');
+                } catch (e) {
+                    window.open(`https://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
+                }
+            }
+        } catch (err) {
+            console.error('Kakao share failed:', err);
+            // 최종 폴백: 텍스트만 공유
+            const fallbackText = `${mbti} - ${result.title}\n${shareUrl}`;
+            if (/Android/i.test(navigator.userAgent)) {
+                window.location.href = `intent://send?text=${encodeURIComponent(fallbackText)}#Intent;scheme=kakaotalk;package=com.kakao.talk;end`;
+            } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                window.location.href = `kakaotalk://send?text=${encodeURIComponent(fallbackText)}`;
+            } else {
+                window.open(`https://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(fallbackText)}`, '_blank');
+            }
         }
     };
 
