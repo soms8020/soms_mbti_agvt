@@ -257,17 +257,17 @@ const ResultPage = () => {
                     </div>
                 </div>
                 {/* Action Buttons */}
-                <div className="flex gap-3">
+                <div className="grid grid-cols-2 gap-3">
                     <button
                         onClick={handleDownload}
-                        className="flex-1 flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-lg"
+                        className="flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-lg"
                     >
                         <Download size={20} />
                         이미지 저장
                     </button>
                     <button
                         onClick={handleKakaoShare}
-                        className="flex-1 flex items-center justify-center gap-2 bg-[#FEE500] hover:bg-[#FDD835] text-[#3C1E1E] font-bold py-3 px-4 rounded-xl transition-colors shadow-lg"
+                        className="flex items-center justify-center gap-2 bg-[#FEE500] hover:bg-[#FDD835] text-[#3C1E1E] font-bold py-3 px-4 rounded-xl transition-colors shadow-lg"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
                             <path d="M12 3c5.799 0 10.5 3.664 10.5 8.185 0 4.52-4.701 8.184-10.5 8.184a13.5 13.5 0 0 1-1.78-.123 4.75 4.75 0 0 1-3.847 2.123l-3.423.607a.5.5 0 0 1-.448-.723l1.12-2.24A9.25 9.25 0 0 1 1.5 11.185C1.5 6.665 6.201 3 12 3Z"/>
